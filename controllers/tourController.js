@@ -44,6 +44,7 @@ exports.createTour = async (req, res) => {
     // const newTour = new Tour({})
     // newTour.save();
 
+    console.log('body', req.body);
     const newTour = await Tour.create(req.body);
 
     res.status(201).json({
@@ -53,9 +54,10 @@ exports.createTour = async (req, res) => {
       }
     });
   } catch (err) {
+    console.log('harshal', err);
     res.status(400).json({
       status: 'fail',
-      message: 'Invalid data sent!'
+      message: err
     });
   }
 };
@@ -63,12 +65,13 @@ exports.createTour = async (req, res) => {
 exports.updateTour = async (req, res) => {
   try {
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-      new: true
+      new: true,
+      runValidators: true
     });
     res.status(200).json({
       status: 'success',
       data: {
-        tour: '<Updated tour here...>'
+        tour
       }
     });
   } catch (err) {
@@ -79,9 +82,17 @@ exports.updateTour = async (req, res) => {
   }
 };
 
-exports.deleteTour = (req, res) => {
-  res.status(204).json({
-    status: 'success',
-    data: null
-  });
+exports.deleteTour = async (req, res) => {
+  try {
+    await Tour.findByIdAndDelete(req.params.id);
+    res.status(204).json({
+      status: 'success',
+      data: null
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err
+    });
+  }
 };
